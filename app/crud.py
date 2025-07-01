@@ -1,8 +1,15 @@
 from sqlalchemy.orm import Session
 from app.models import User, PartnerPair, Idea, DateEvent
 from app.schemas import UserCreate, PartnerPairCreate, IdeaCreate, DateEventCreate
+from fastapi import HTTPException
 #* User 
 def create_user(db: Session, user: UserCreate):
+    existing_user = db.query(User).filter(User.user_id == user.user_id).first()
+    if existing_user:
+        raise HTTPException(
+            status_code=400,
+            detail=f"User with ID {user.user_id} already exists"
+        )
     db_user = User(**user.dict())
     db.add(db_user)
     db.commit()

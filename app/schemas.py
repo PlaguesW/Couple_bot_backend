@@ -2,32 +2,38 @@ from pydantic import BaseModel
 from datetime import datetime
 from typing import Optional
 
-#* Users
+# * Users
+
+
 class UserBase(BaseModel):
     user_id: str
     telegram_id: int
     name: str
     username: str
 
+
 class UserCreate(UserBase):
     pass
+
 
 class User(UserBase):
     created_at: datetime
     updated_at: datetime
 
     class Config:
-        from_attributes = True
+        orm_mode = True
 
 
-#* PartnerPair Schemas
+# * PartnerPair Schemas
 class PartnerPairBase(BaseModel):
     id: str
     user1_id: str
     user2_id: str
 
+
 class PartnerPairCreate(PartnerPairBase):
     pass
+
 
 class PartnerPair(PartnerPairBase):
     created_at: datetime
@@ -36,14 +42,16 @@ class PartnerPair(PartnerPairBase):
         from_attributes = True
 
 
-#* Ideas
+# * Ideas
 class IdeaBase(BaseModel):
     idea_id: str
     title: str
     description: str
 
+
 class IdeaCreate(IdeaBase):
     pass
+
 
 class Idea(IdeaBase):
     created_at: datetime
@@ -52,7 +60,7 @@ class Idea(IdeaBase):
         from_attributes = True
 
 
-#* Date Enents
+# * Date Enents
 class DateEventBase(BaseModel):
     id: str
     pair_id: str
@@ -63,8 +71,10 @@ class DateEventBase(BaseModel):
     scheduled_date: Optional[datetime] = None
     completed_date: Optional[datetime] = None
 
+
 class DateEventCreate(DateEventBase):
     pass
+
 
 class DateEvent(DateEventBase):
     created_at: datetime
