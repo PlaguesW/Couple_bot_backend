@@ -3,6 +3,8 @@ from app.database import engine, Base
 from app.models import User, PartnerPair, Idea, DateEvent
 from app.routers import users, pairs, ideas, events, admin
 
+Base.metadata.drop_all(bind=engine) 
+
 print("Engine URL:", engine.url)
 
 try:
@@ -13,6 +15,10 @@ except Exception as e:
 
 app = FastAPI()
 
+@app.on_event("startup")
+async def startup_event():
+    Base.metadata.create_all(bind=engine)
+    
 app.include_router(users.router)
 app.include_router(pairs.router)
 app.include_router(ideas.router)

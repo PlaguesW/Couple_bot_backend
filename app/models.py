@@ -1,5 +1,4 @@
-from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Boolean, Enum
-from sqlalchemy.orm import relationship
+from sqlalchemy import Column, String, BigInteger, DateTime, ForeignKey, Boolean, Enum
 from sqlalchemy.ext.declarative import declarative_base
 from datetime import datetime
 
@@ -7,12 +6,13 @@ Base = declarative_base()
 
 class User(Base):
     __tablename__ = "users"
-    user_id = Column(String, primary_key=True, index=True)
-    telegram_id = Column(Integer, unique=True, index=True)
-    name = Column(String)
-    username = Column(String)
+    
+    user_id = Column(String, primary_key=True)
+    telegram_id = Column(BigInteger, nullable=False)
+    name = Column(String, nullable=False)
+    username = Column(String, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
 class PartnerPair(Base):
     __tablename__ = "pairs"
