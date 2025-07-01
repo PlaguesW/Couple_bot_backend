@@ -2,22 +2,12 @@ from sqlalchemy.orm import Session
 from app.models import User, PartnerPair, Idea, DateEvent
 from app.schemas import UserCreate, PartnerPairCreate, IdeaCreate, DateEventCreate
 #* User 
-def create_or_update_user(db: Session, user: UserCreate):
-    existing_user = db.query(User).filter(User.user_id == user.user_id).first()
-    
-    if existing_user:
-        for key, value in user.dict().items():
-            setattr(existing_user, key, value)
-        existing_user.updated_at = datetime.utcnow()
-        db.commit()
-        db.refresh(existing_user)
-        return existing_user
-    else:
-        db_user = User(**user.dict())
-        db.add(db_user)
-        db.commit()
-        db.refresh(db_user)
-        return db_user
+def create_user(db: Session, user: UserCreate):
+    db_user = User(**user.dict())
+    db.add(db_user)
+    db.commit()
+    db.refresh(db_user)
+    return db_user
 
 def get_user(db: Session, user_id: str):
     return db.query(User).filter(User.user_id == user_id).first()
