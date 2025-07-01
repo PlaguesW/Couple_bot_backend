@@ -10,6 +10,8 @@ pip install -r requirements.txt
 python -m uvicorn app.main:app --reload
 ```
 
+## MVP Structure
+
 <div style="font-family: monospace; background-color: #f5; padding: 15px; border-radius: 5px;">
 <pre>
 couple_bot_backend/
