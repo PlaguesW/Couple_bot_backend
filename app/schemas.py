@@ -1,20 +1,13 @@
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel
 from datetime import datetime
 from typing import Optional
-from enum import Enum
 
-class DateStatusEnum(str, Enum):
-    pending = "pending"
-    accepted = "accepted"
-    completed = "completed"
-    cancelled = "cancelled"
-
-# Users
+#* Users
 class UserBase(BaseModel):
-    user_id: str = Field(..., min_length=1, max_length=100)
-    telegram_id: int = Field(..., gt=0)
-    name: str = Field(..., min_length=1, max_length=200)
-    username: str = Field(..., min_length=1, max_length=100)
+    user_id: str
+    telegram_id: int
+    name: str
+    username: str
 
 class UserCreate(UserBase):
     pass
@@ -22,72 +15,59 @@ class UserCreate(UserBase):
 class User(UserBase):
     created_at: datetime
     updated_at: datetime
-    
+
     class Config:
         from_attributes = True
 
-# PartnerPair Schemas
+
+#* PartnerPair Schemas
 class PartnerPairBase(BaseModel):
-    id: str = Field(..., min_length=1, max_length=100)
-    user1_id: str = Field(..., min_length=1, max_length=100)
-    user2_id: str = Field(..., min_length=1, max_length=100)
-    
-    @validator('user2_id')
-    def users_must_be_different(cls, v, values):
-        if 'user1_id' in values and v == values['user1_id']:
-            raise ValueError('user1_id and user2_id must be different')
-        return v
+    id: str
+    user1_id: str
+    user2_id: str
 
 class PartnerPairCreate(PartnerPairBase):
     pass
 
 class PartnerPair(PartnerPairBase):
     created_at: datetime
-    
+
     class Config:
         from_attributes = True
 
-# Ideas
+
+#* Ideas
 class IdeaBase(BaseModel):
-    idea_id: str = Field(..., min_length=1, max_length=100)
-    title: str = Field(..., min_length=1, max_length=500)
-    description: str = Field(..., min_length=1, max_length=2000)
+    idea_id: str
+    title: str
+    description: str
 
 class IdeaCreate(IdeaBase):
     pass
 
-class IdeaUpdate(BaseModel):
-    title: Optional[str] = Field(None, min_length=1, max_length=500)
-    description: Optional[str] = Field(None, min_length=1, max_length=2000)
-
 class Idea(IdeaBase):
     created_at: datetime
-    
+
     class Config:
         from_attributes = True
 
-# Date Events
+
+#* Date Enents
 class DateEventBase(BaseModel):
-    id: str = Field(..., min_length=1, max_length=100)
-    pair_id: str = Field(..., min_length=1, max_length=100)
-    idea_id: str = Field(..., min_length=1, max_length=100)
-    proposer_id: str = Field(..., min_length=1, max_length=100)
-    accepted: bool = False
-    date_status: DateStatusEnum = DateStatusEnum.pending
+    id: str
+    pair_id: str
+    idea_id: str
+    proposer_id: str
+    accepted: bool
+    date_status: str  # pending, accepted, completed, cancelled
     scheduled_date: Optional[datetime] = None
     completed_date: Optional[datetime] = None
 
 class DateEventCreate(DateEventBase):
     pass
 
-class DateEventUpdate(BaseModel):
-    accepted: Optional[bool] = None
-    date_status: Optional[DateStatusEnum] = None
-    scheduled_date: Optional[datetime] = None
-    completed_date: Optional[datetime] = None
-
 class DateEvent(DateEventBase):
     created_at: datetime
-    
+
     class Config:
         from_attributes = True
