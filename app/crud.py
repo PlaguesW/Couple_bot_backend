@@ -19,8 +19,11 @@ def create_user(db: Session, user: UserCreate):
 def get_user(db: Session, user_id: str):
     return db.query(User).filter(User.user_id == user_id).first()
 
-def get_all_users(db: Session):
-    return db.query(User).all()
+def get_all_users(db: Session, skip: int = 0, limit: int = 100):
+    return db.query(User).offset(skip).limit(limit).all()
+
+def get_users_count(db: Session):
+    return db.query(User).count()
 
 #* Pairs
 def create_pair(db: Session, pair: PartnerPairCreate):

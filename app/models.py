@@ -13,6 +13,9 @@ class User(Base):
     username = Column(String)
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow)
+    # connecting relationships
+    # pairs = relationship("PartnerPair", back_populates="user1", foreign_keys="[PartnerPair.user1_id]")
+
 
 class PartnerPair(Base):
     __tablename__ = "pairs"
@@ -20,6 +23,9 @@ class PartnerPair(Base):
     user1_id = Column(String, ForeignKey("users.user_id"))
     user2_id = Column(String, ForeignKey("users.user_id"))
     created_at = Column(DateTime, default=datetime.utcnow)
+    # connecting relationships
+    # user1_id = relationship("User", foreign_keys=[user1_id], back_populates="pairs")
+
 
 class Idea(Base):
     __tablename__ = "ideas"
@@ -35,7 +41,8 @@ class DateEvent(Base):
     idea_id = Column(String, ForeignKey("ideas.idea_id"))
     proposer_id = Column(String, ForeignKey("users.user_id"))
     accepted = Column(Boolean, default=False)
-    date_status = Column(Enum("pending", "accepted", "completed", "cancelled", name="date_status_enum"))
+    date_status = Column(
+        Enum("pending", "accepted", "completed", "cancelled", name="date_status_enum"))
     scheduled_date = Column(DateTime)
     completed_date = Column(DateTime)
     created_at = Column(DateTime, default=datetime.utcnow)

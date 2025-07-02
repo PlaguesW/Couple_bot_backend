@@ -1,10 +1,8 @@
 from pydantic import BaseModel
 from datetime import datetime
-from typing import Optional
+from typing import Optional, List
 
 # * Users
-
-
 class UserBase(BaseModel):
     user_id: str
     telegram_id: int
@@ -22,6 +20,19 @@ class User(UserBase):
 
     class Config:
         orm_mode = True
+        
+        
+class UserResponse(UserBase):
+    id: int
+    created_at: datetime
+        
+        
+class UsersListResponse(BaseModel):
+    """Response with list of users."""
+    users: List[UserResponse]
+    total: int
+    skip: int
+    limit: int
 
 
 # * PartnerPair Schemas
