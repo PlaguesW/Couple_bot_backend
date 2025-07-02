@@ -2,6 +2,7 @@ from sqlalchemy.orm import Session
 from app.models import User, PartnerPair, Idea, DateEvent
 from app.schemas import UserCreate, PartnerPairCreate, IdeaCreate, DateEventCreate
 from fastapi import HTTPException
+from app.models import User as UserModel
 #* User 
 def create_user(db: Session, user: UserCreate):
     existing_user = db.query(User).filter(User.user_id == user.user_id).first()
@@ -17,13 +18,19 @@ def create_user(db: Session, user: UserCreate):
     return db_user
 
 def get_user(db: Session, user_id: str):
-    return db.query(User).filter(User.user_id == user_id).first()
+    print(f"CRUD: Searching for user_id: {user_id}")
+    user = db.query(UserModel).filter(UserModel.user_id == user_id).first()
+    print(f"CRUD: Found user: {user}")
+    return user
 
 def get_all_users(db: Session, skip: int = 0, limit: int = 100):
     return db.query(User).offset(skip).limit(limit).all()
 
 def get_users_count(db: Session):
     return db.query(User).count()
+
+# def get_user_by_telegram_id(db: Session, telegram_id: int):
+#     return db.query(User).filter(User.telegram_id == telegram_id).first()
 
 #* Pairs
 def create_pair(db: Session, pair: PartnerPairCreate):

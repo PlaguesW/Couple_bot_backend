@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 from app.schemas import UserCreate, User, UsersListResponse, UserResponse
 from app.crud import create_user, get_user, get_all_users, get_users_count
 from app.database import get_db
+from app.models import User as UserModel
 
 router = APIRouter(prefix="/users", tags=["User"])
 
@@ -47,8 +48,13 @@ def get_all_users_endpoint(
 
 
 @router.get("/profile", response_model=User)
-def read_profile(user_id: str, db: Session = Depends(get_db)):
+def read_profile(user_id: str = Query(..., description="User ID to search for"), db: Session = Depends(get_db)):
+    print(f"Backend: Looking for user with user_id: {user_id}")
+    
     db_user = get_user(db, user_id=user_id)
+    print(f"Backend: Found user: {db_user}")
+    
     if not db_user:
+        print("Backend: User not found, returning 404")
         raise HTTPException(status_code=404, detail="User not found")
     return db_user
