@@ -48,13 +48,23 @@ def get_all_users_endpoint(
 
 
 @router.get("/profile", response_model=User)
-def read_profile(user_id: str = Query(..., description="User ID to search for"), db: Session = Depends(get_db)):
-    print(f"Backend: Looking for user with user_id: {user_id}")
-    
+def read_profile(
+    user_id: str = Query(..., description="User ID to search for"),
+    db: Session = Depends(get_db)
+):
+    print(f"Looking for user with user_id: {user_id}")  
+
     db_user = get_user(db, user_id=user_id)
-    print(f"Backend: Found user: {db_user}")
-    
+    print(f"Found user: {db_user}")  
+
     if not db_user:
-        print("Backend: User not found, returning 404")
-        raise HTTPException(status_code=404, detail="User not found")
+        print("User not found in database. Creating new user...")  
+
+        try:
+            user_create = UserCreate(user_id=user_id)
+            db_user = create_user(db, user_create) 
+        except Exception as e:
+            print(f"Error creating user automatically: {e}")
+            raise HTTPException(status_code=500, detail="Failed to auto-create user")
+
     return db_user
