@@ -34,21 +34,22 @@ class UsersListResponse(BaseModel):
     skip: int
     limit: int
 
-
-# * PartnerPair Schemas
+# PartnerPair Schemas
 class PartnerPairBase(BaseModel):
+    user1_id: str
+    user2_id: Optional[str] = None  
+
+class PartnerPairCreate(BaseModel):
+    user1_id: str
+    user2_id: Optional[str] = None 
+
+class PartnerPair(BaseModel):
     id: str
     user1_id: str
-    user2_id: str
-
-
-class PartnerPairCreate(PartnerPairBase):
-    pass
-
-
-class PartnerPair(PartnerPairBase):
+    user2_id: Optional[str] = None
     created_at: datetime
-
+    invitation_code: Optional[str] = None  
+    
     class Config:
         from_attributes = True
 
@@ -59,10 +60,8 @@ class IdeaBase(BaseModel):
     title: str
     description: str
 
-
 class IdeaCreate(IdeaBase):
     pass
-
 
 class Idea(IdeaBase):
     created_at: datetime
@@ -82,13 +81,11 @@ class DateEventBase(BaseModel):
     scheduled_date: Optional[datetime] = None
     completed_date: Optional[datetime] = None
 
-
 class DateEventCreate(DateEventBase):
     pass
 
-
 class DateEvent(DateEventBase):
     created_at: datetime
-
+    
     class Config:
         from_attributes = True

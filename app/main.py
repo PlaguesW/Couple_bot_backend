@@ -2,6 +2,8 @@ from fastapi import FastAPI
 from app.database import engine, Base, create_tables
 from app.models import User, PartnerPair, Idea, DateEvent
 from app.routers import users, pairs, ideas, events, admin
+from alembic.config import Config
+from alembic import command
 
 print("Engine URL:", engine.url)
 
@@ -22,7 +24,8 @@ app.include_router(events.router)
 async def startup_event():
     """Creatre database tables on startup."""
     try:
-        create_tables()
+        alembic_cfg = Config("alembic.ini")
+        command.upgrade(alembic_cfg, "head")
         print("Database tables created successfully.")
     except Exception as e:
         print(f"Error creating database tables: {e}")
