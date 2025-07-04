@@ -1,0 +1,62 @@
+version: '3.8'
+
+services:
+  # *PostgreSQL Database
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: couple_bot
+      POSTGRES_USER: couple_bot_user
+      POSTGRES_PASSWORD: couple_bot_password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U couple_bot_user -d couple_bot"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  #* FastAPI Backend
+  backend:
+    build: .
+    environment:
+      DATABASE_URL: postgresql://couple_bot_user:couple_bot_password@db:5432/couple_bot
+      API_TOKEN: your-super-secret-api-token-change-this
+      DEBUG: "false"
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - .:/app
+    restart: unless-stopped
+
+  #* Redis (for future)
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+
+  #* pgadmin
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@example.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "5050:80"
+    depends_on:
+      - db
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+
+volumes:
+  postgres_data:
+  redis_data:
+  pgadmin_data:
