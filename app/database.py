@@ -211,9 +211,9 @@ class Database:
         async with self.pool.acquire() as conn:
             row = await conn.fetchrow(
                 "SELECT * FROM couples WHERE user1_id = $1 OR user2_id = $1",
-                user_id
-            )
-            return dict(row) if row else None
+            user_id
+        )
+        return dict(row) if row else None
     
     # Ideas methods
     async def create_idea(self, title: str, description: str, category: str) -> Optional[Dict[str, Any]]:

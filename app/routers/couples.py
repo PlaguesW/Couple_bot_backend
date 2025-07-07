@@ -46,3 +46,15 @@ async def generate_couple_code():
     """Generate a new couple invite code"""
     code = db.generate_invite_code()
     return {"invite_code": code}
+
+
+@router.get("/user/{user_id}", response_model=CoupleResponse)
+async def get_couple_by_user_id(user_id: int):
+    """Get couple by user ID"""
+    couple = await db.get_couple_by_user_id(user_id)
+    if not couple:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Couple not found"
+        )
+    return CoupleResponse(**couple)
