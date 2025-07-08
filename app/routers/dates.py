@@ -41,23 +41,31 @@ async def create_date_proposal(proposal_data: DateEventCreate):
     return DateEventResponse(**date_event)
 
 
-@router.post("/respond", response_model=DateEventResponse)
-async def respond_to_date_proposal(event_id: int, response: str):
-    """Respond to a date proposal (accept/reject)"""
-    if response not in ["accepted", "rejected"]:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Response must be 'accepted' or 'rejected'"
-        )
+@router.post("/respond")
+async def respond_to_date_proposal(event_id: int, response: str, user_id: int):
+    event = await db.get_date_event_by_id(event_id)
+    if not event:
+        raise HTTPException(status_code=404, detail="Event not found")
     
-    date_event = await db.respond_to_date_proposal(event_id, response)
-    if not date_event:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Date proposal not found or already responded to"
-        )
+    couple = await db.get_couple_by_id(event['couple_id'])
+    if user_id not in [couple['user1_id'], couple['user2_id']]:
+        raise HTTPException(status_code=403, detail="Not authorized")
     
-    return DateEventResponse(**date_event)
+    if user_id == event['proposer_id']:
+        raise HTTPException(status_code=400, detail="Cannot respond to own proposal")
+    
+    result = await db.respond_to_date_proposal(event_id, response)
+    return result
+
+@router.get("/proposals/{user_id}")
+async def get_user_proposals(user_id: int, status: str = None):
+    """Get proposals for a specific user"""
+    couple = await db.get_couple_by_user_id(user_id)
+    if not couple:
+        raise HTTPException(status_code=404, detail="User not in a couple")
+    
+    proposals = await db.get_proposals_for_user(couple['id'], user_id, status)
+    return proposals
 
 
 @router.get("/history/{couple_id}", response_model=List[DateEventResponse])

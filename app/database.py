@@ -108,7 +108,7 @@ class Database:
                 title, description, category
             )
     
-    # Users methods
+    #* Users
     async def create_user(self, telegram_id: int, name: str, username: str = None) -> Optional[Dict[str, Any]]:
         """Create a new user"""
         async with self.pool.acquire() as conn:
@@ -145,7 +145,7 @@ class Database:
             rows = await conn.fetch("SELECT * FROM users ORDER BY created_at DESC")
             return [dict(row) for row in rows]
     
-    # Couples methods
+    #* Couples
     def generate_invite_code(self) -> str:
         """Generate a unique invite code"""
         return ''.join(random.choices(string.ascii_uppercase + string.digits, k=6))
@@ -215,7 +215,7 @@ class Database:
         )
         return dict(row) if row else None
     
-    # Ideas methods
+    #* Ideas
     async def create_idea(self, title: str, description: str, category: str) -> Optional[Dict[str, Any]]:
         """Create a new idea"""
         async with self.pool.acquire() as conn:
@@ -288,7 +288,7 @@ class Database:
             )
             return result != "DELETE 0"
     
-    # Date events methods
+    #* Date/Events
     async def create_date_proposal(self, couple_id: int, idea_id: int, proposer_id: int) -> Optional[Dict[str, Any]]:
         """Create a date proposal"""
         async with self.pool.acquire() as conn:
@@ -306,6 +306,28 @@ class Database:
                 response, event_id
             )
             return await self.get_date_event_by_id(updated_id) if updated_id else None
+        
+    async def get_proposals_for_user(self, couple_id: int, user_id: int, status: str = None) -> List[Dict[str, Any]]:
+        """Get proposals that user can respond to"""
+        async with self.pool.acquire() as conn:
+            query = """
+            SELECT de.*, i.title as idea_title, i.description as idea_description,
+                u.name as proposer_name
+            FROM date_events de
+            JOIN ideas i ON de.idea_id = i.id
+            JOIN users u ON de.proposer_id = u.id
+            WHERE de.couple_id = $1 AND de.proposer_id != $2
+            """
+            params = [couple_id, user_id]
+            
+            if status:
+                query += " AND de.date_status = $3"
+                params.append(status)
+            
+            query += " ORDER BY de.created_at DESC"
+            
+            rows = await conn.fetch(query, *params)
+            return [dict(row) for row in rows]
     
     async def get_date_event_by_id(self, event_id: int) -> Optional[Dict[str, Any]]:
         """Get date event by ID"""
@@ -342,5 +364,4 @@ class Database:
             return [dict(row) for row in rows]
 
 
-# Global database instance
 db = Database()
